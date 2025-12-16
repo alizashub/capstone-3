@@ -16,7 +16,7 @@ import java.util.List;
 @CrossOrigin
 public class ProductsController
 {
-    private ProductDao productDao;
+    private final ProductDao productDao;
 
     @Autowired
     public ProductsController(ProductDao productDao)
@@ -25,7 +25,6 @@ public class ProductsController
     }
 
     @GetMapping("")
-    @PreAuthorize("permitAll()")
     public List<Product> search(@RequestParam(name="cat", required = false) Integer categoryId,
                                 @RequestParam(name="minPrice", required = false) BigDecimal minPrice,
                                 @RequestParam(name="maxPrice", required = false) BigDecimal maxPrice,
@@ -43,7 +42,6 @@ public class ProductsController
     }
 
     @GetMapping("{id}")
-    @PreAuthorize("permitAll()")
     public Product getById(@PathVariable int id )
     {
         try
@@ -62,7 +60,8 @@ public class ProductsController
     }
 
     @PostMapping()
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('ADMIN')")
     public Product addProduct(@RequestBody Product product)
     {
         try
@@ -76,12 +75,16 @@ public class ProductsController
     }
 
     @PutMapping("{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public void updateProduct(@PathVariable int id, @RequestBody Product product)
     {
         try
         {
-            productDao.create(product);
+            if (product.getProductId() !=0 && product.getProductId() !=id) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ProductID in URL does not match productID in the body.");
+            }
+            productDao.update(id, product);
+
         }
         catch(Exception ex)
         {
@@ -90,7 +93,8 @@ public class ProductsController
     }
 
     @DeleteMapping("{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasRole('ADMIN')")
     public void deleteProduct(@PathVariable int id)
     {
         try

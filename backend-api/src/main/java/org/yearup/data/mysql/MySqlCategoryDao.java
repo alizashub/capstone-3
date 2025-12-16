@@ -3,6 +3,7 @@ package org.yearup.data.mysql;
 import org.springframework.stereotype.Component;
 import org.yearup.data.CategoryDao;
 import org.yearup.models.Category;
+import org.yearup.models.Product;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -67,6 +68,7 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
         return null;
     }
 
+
     @Override
     public Category create(Category category) {
         // create a new category
@@ -99,7 +101,6 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
         }
         return null;
     }
-
 
     @Override
     public void update(int categoryId, Category category) {
