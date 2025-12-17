@@ -1,6 +1,8 @@
 package org.yearup.controllers;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import org.yearup.data.ProductDao;
 import org.yearup.data.ShoppingCartDao;
@@ -11,6 +13,7 @@ import org.yearup.models.User;
 import java.security.Principal;
 
 // convert this class to a REST controller
+@RestController
 // only logged in users should have access to these actions
 public class ShoppingCartController
 {
@@ -41,6 +44,7 @@ public class ShoppingCartController
         }
     }
 
+   // @PutMapping("{/products/15}")
     // add a POST method to add a product to the cart - the url should be
     // https://localhost:8080/cart/products/15 (15 is the productId to be added
 

@@ -2,8 +2,7 @@ package org.yearup.models;
 
 import java.math.BigDecimal;
 
-public class Product
-{
+public class Product {
     private int productId;
     private String name;
     private BigDecimal price;
@@ -13,6 +12,8 @@ public class Product
     private int stock;
     private boolean isFeatured;
     private String imageUrl;
+
+
 
     public Product()
     {
