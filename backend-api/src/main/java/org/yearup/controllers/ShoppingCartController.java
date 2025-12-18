@@ -34,7 +34,7 @@ public class ShoppingCartController {
 
     // each method in this controller requires a Principal object as a parameter
 
-    @GetMapping
+    @GetMapping("")
     public ShoppingCart getCart(Principal principal) {
 
         User user = getAuthenticatedUser(principal);
@@ -43,11 +43,13 @@ public class ShoppingCartController {
         // create shopping cart item objects
         // adds them to the shopping cart
         // return a fully built cart - converts object to JSON
-        return shoppingCartDao.getByUserId(user.getId());
+        ShoppingCart cart = shoppingCartDao.getByUserId(user.getId());
+        return cart;
     }
 
 
     @PostMapping("/products/{productId}")
+    @ResponseStatus(HttpStatus.CREATED)
     public ShoppingCart addProduct(@PathVariable int productId, Principal principal) {
 
         // get the database user with the userid
