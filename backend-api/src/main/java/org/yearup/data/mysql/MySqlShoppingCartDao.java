@@ -1,5 +1,6 @@
 package org.yearup.data.mysql;
 
+import org.apache.ibatis.jdbc.SQL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.yearup.data.ProductDao;
@@ -18,7 +19,6 @@ import java.sql.SQLException;
 @Component
 public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDao {
 
-    @Autowired
     public MySqlShoppingCartDao(DataSource dataSource) {
         super(dataSource);
     }
@@ -34,11 +34,19 @@ public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDa
         // for the userid, give me every product in their cart, including details and quantity
         String sql = """
                 SELECT 
-                shopping_cart.quantity, 
-                products.*
-                FROM shopping_cart
-                JOIN products ON shopping_cart.product_id = products.product_id
-                WHERE shopping_cart.user_id = ?
+                    shopping_cart.quantity,
+                    products.product_id,
+                    products.name,
+                    products.price,
+                    products.category_id,
+                    products.description,
+                    products.subcategory,
+                    products.stock,
+                    products.featured,
+                    products.image_url
+                                FROM shopping_cart
+                                JOIN products ON shopping_cart.product_id = products.product_id
+                                WHERE shopping_cart.user_id = ?
                 """;
 
         try (Connection connection = getConnection();
@@ -48,8 +56,8 @@ public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDa
 
             try (ResultSet row = preparedStatement.executeQuery()) {
                 while (row.next()) {
-
-                    Product product = new Product(row.getInt("product_id"),
+                    Product product = new Product(
+                            row.getInt("product_id"),
                             row.getString("name"),
                             row.getBigDecimal("price"),
                             row.getInt("category_id"),
@@ -72,7 +80,8 @@ public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDa
             }
         } catch (SQLException e) {
             throw new RuntimeException("Failed to load shoppin cart for the user" + userId + e);
-        } return cart;
+        }
+        return cart;
     }
 
     @Override
@@ -92,39 +101,62 @@ public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDa
 
         try (Connection connection = getConnection()) {
 
-            try ( PreparedStatement updateStament = connection.prepareStatement(updateSql))
-            {
-                updateStament.setInt(1,userId);
-                updateStament.setInt(2,productId);
+            try (PreparedStatement updateStament = connection.prepareStatement(updateSql)) {
+                updateStament.setInt(1, userId);
+                updateStament.setInt(2, productId);
 
                 int rowsUpdated = updateStament.executeUpdate();
 
-                if (rowsUpdated == 0)
-                {
-                    try (PreparedStatement insertStatement = connection.prepareStatement(insertSql))
-                    {
-                        insertStatement.setInt(1,userId);
-                        insertStatement.setInt(2,productId);
-
+                if (rowsUpdated == 0) {
+                    try (PreparedStatement insertStatement = connection.prepareStatement(insertSql)) {
+                        insertStatement.setInt(1, userId);
+                        insertStatement.setInt(2, productId);
                         insertStatement.executeUpdate();
                     }
 
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException( "Failed to add product to cart" + e);
+            throw new RuntimeException("Failed to add product to cart" + e);
         }
-
     }
 
     @Override
     public void updateProductQuantity(int userId, int productId, int quantity) {
-        // implement later
+
+        String sql = """
+                UPDATE shopping_cart 
+                SET quantity = ?
+                WHERE user_id = ? AND product_id = ?
+                """;
+
+        try (Connection connection = getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, quantity);
+            preparedStatement.setInt(2, userId);
+            preparedStatement.setInt(3, productId);
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to update product quantity" + e);
+        }
     }
 
     @Override
     public void clearCart(int userId) {
-        // implment later
+
+        String sql = """
+                DELETE FROM shopping_cart
+                WHERE user_id = ?
+                """;
+        try (Connection connection = getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, userId);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to clear shopping cart" + e);
+        }
+
     }
 
 

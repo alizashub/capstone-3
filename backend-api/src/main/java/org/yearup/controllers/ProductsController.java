@@ -24,7 +24,7 @@ public class ProductsController
         this.productDao = productDao;
     }
 
-    @GetMapping("")
+    @GetMapping
     public List<Product> search(@RequestParam(name="cat", required = false) Integer categoryId,
                                 @RequestParam(name="minPrice", required = false) BigDecimal minPrice,
                                 @RequestParam(name="maxPrice", required = false) BigDecimal maxPrice,
@@ -59,7 +59,7 @@ public class ProductsController
         }
     }
 
-    @PostMapping()
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('ADMIN')")
     public Product addProduct(@RequestBody Product product)
