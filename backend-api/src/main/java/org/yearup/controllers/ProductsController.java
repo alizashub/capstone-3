@@ -14,101 +14,72 @@ import java.util.List;
 @RestController
 @RequestMapping("products")
 @CrossOrigin
-public class ProductsController
-{
+public class ProductsController {
     private final ProductDao productDao;
 
     @Autowired
-    public ProductsController(ProductDao productDao)
-    {
+    public ProductsController(ProductDao productDao) {
         this.productDao = productDao;
     }
 
     @GetMapping
-    public List<Product> search(@RequestParam(name="cat", required = false) Integer categoryId,
-                                @RequestParam(name="minPrice", required = false) BigDecimal minPrice,
-                                @RequestParam(name="maxPrice", required = false) BigDecimal maxPrice,
-                                @RequestParam(name="subCategory", required = false) String subCategory
-                                )
-    {
-        try
-        {
-            return productDao.search(categoryId, minPrice, maxPrice, subCategory);
-        }
-        catch(Exception ex)
-        {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Oops... our bad.");
-        }
+    public List<Product> search(
+            // maps directly from the URL -- becomes null is not provided
+            @RequestParam(name = "cat", required = false) Integer categoryId,
+            // Reads ?minPrice= from the URL
+            // If not provided, minPrice will be null
+            @RequestParam(name = "minPrice", required = false) BigDecimal minPrice, @RequestParam(name = "maxPrice", required = false) BigDecimal maxPrice,
+            // Reads ?subCategory= from the URL
+            // If not provided, subCategory will be null
+            @RequestParam(name = "subCategory", required = false) String subCategory) {
+        return productDao.search(categoryId, minPrice, maxPrice, subCategory);
     }
 
     @GetMapping("{id}")
-    public Product getById(@PathVariable int id )
-    {
-        try
-        {
-            var product = productDao.getById(id);
+    public Product getById(@PathVariable int id) {
+        // this will return a product if it exists and be null if no product with id exists
+        Product product = productDao.getById(id);
 
-            if(product == null)
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-
-            return product;
+        if (product == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product " + id + " not found");
         }
-        catch(Exception ex)
-        {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Oops... our bad.");
-        }
+        return product;
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('ADMIN')")
-    public Product addProduct(@RequestBody Product product)
+    public Product addProduct(@RequestBody Product product) //  reads the JSON body and converts it into a product obj
     {
-        try
-        {
-            return productDao.create(product);
-        }
-        catch(Exception ex)
-        {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Oops... our bad.");
-        }
+        // return a fully populated product obj
+        return productDao.create(product);
     }
 
     @PutMapping("{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public void updateProduct(@PathVariable int id, @RequestBody Product product)
+    public void updateProduct(@PathVariable int id, @RequestBody Product product) // reads the JSON body and converts it into a product obj
     {
-        try
-        {
-            if (product.getProductId() !=0 && product.getProductId() !=id) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ProductID in URL does not match productID in the body.");
-            }
-            productDao.update(id, product);
-
+        // checks to see if body productid matches url productid
+        if (product.getProductId() != 0 && product.getProductId() != id) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ProductID in URL does not match productID in the body.");
         }
-        catch(Exception ex)
-        {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Oops... our bad.");
+
+        boolean updated = productDao.update(id, product);
+
+        if (!updated) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product " + id + " not found");
         }
     }
 
     @DeleteMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasRole('ADMIN')")
-    public void deleteProduct(@PathVariable int id)
-    {
-        try
-        {
-            var product = productDao.getById(id);
+    public void deleteProduct(@PathVariable int id) {
 
-            if(product == null)
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        boolean deleted = productDao.delete(id);
 
-            productDao.delete(id);
-        }
-        catch(Exception ex)
-        {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Oops... our bad.");
+        if (!deleted) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product " + id + " not found");
         }
     }
 }

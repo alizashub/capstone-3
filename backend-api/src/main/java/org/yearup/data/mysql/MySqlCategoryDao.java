@@ -50,13 +50,11 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
                 categories.add(category);
             }
         } catch (SQLException e) {
-            // if something goes wrong with the database, log the error
-            System.err.println("Error while running getAllCategories(): " + e.getMessage());
+            throw new RuntimeException("Error retrieving all categories",e);
         }
         // retuns the list of cat objs
         // if no rows existed, the list will be empty not NULL
         return categories;
-
     }
 
     @Override
@@ -84,7 +82,7 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
                 return mapRow(resultSet);
             }
         } catch (SQLException e) {
-            System.err.println("Error while running getById(): " + e.getMessage());
+            throw new RuntimeException("Error retrieving category with id " + categoryId,e);
         }
         // if no row was found then it returns null -- "no cat with this id exists"
         return null;
@@ -134,10 +132,8 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
             return getByCategoryID(category_id);
 
         } catch (SQLException e) {
-            System.err.println("Error creating a new category: " + e.getMessage());
+            throw new RuntimeException("Error creating category: " + category.getName(),e);
         }
-        // if creation failed, return null
-        return null;
     }
 
     @Override
@@ -167,9 +163,10 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
             return  rowsUpdated == 1;
         }
         catch (SQLException e) {
-            System.err.println("Error updating category: " + e.getMessage());
+
+            // Database failure → unrecoverable here
+            throw new RuntimeException("Error updating category " + categoryId, e);
         }
-        return false;
     }
 
     @Override
@@ -195,10 +192,9 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
         }
 
         catch (SQLException e) {
-            System.err.println("Error deleting category: " + e.getMessage());
-        }
 
-        return false;
+            throw new RuntimeException("Error deleting category " + categoryId, e);
+        }
     }
 
     private Category mapRow(ResultSet row) throws SQLException {
