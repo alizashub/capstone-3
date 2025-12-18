@@ -6,7 +6,9 @@ import java.math.BigDecimal;
 
 public class ShoppingCartItem
 {
+    // the full product obj
     private Product product = null;
+    // defaults to 1 because adding a product adds one unit
     private int quantity = 1;
     private BigDecimal discountPercent = BigDecimal.ZERO;
 
@@ -18,35 +20,45 @@ public class ShoppingCartItem
 
     public void setProduct(Product product)
     {
+
         this.product = product;
     }
 
     public int getQuantity()
     {
+
         return quantity;
     }
 
     public void setQuantity(int quantity)
     {
+
         this.quantity = quantity;
     }
 
     public BigDecimal getDiscountPercent()
     {
+
         return discountPercent;
     }
 
     public void setDiscountPercent(BigDecimal discountPercent)
     {
+
         this.discountPercent = discountPercent;
     }
 
+    // returns the productId of the product in this cart
+    // used by shopping cart as the map key
     @JsonIgnore
     public int getProductId()
     {
-        return this.product.getProductId();
+        return
+                this.product.getProductId();
     }
 
+    // calculates the total price for this cart item
+    // ( price * quantity ) - discount
     public BigDecimal getLineTotal()
     {
         BigDecimal basePrice = product.getPrice();

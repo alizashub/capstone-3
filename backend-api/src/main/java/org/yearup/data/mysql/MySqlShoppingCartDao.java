@@ -23,15 +23,19 @@ public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDa
         super(dataSource);
     }
 
-    // give a userid and return the shoppingcart object for that user
+
     @Override
-    // uses pk to retun object
     public ShoppingCart getByUserId(int userId) {
 
-        // create an empty cart
+        // create an empty shoppingcart obj
+        // if user has no items, it returns empty not null
         ShoppingCart cart = new ShoppingCart();
 
-        // for the userid, give me every product in their cart, including details and quantity
+        // get quantity from shopping_cart table
+        // get full product details from products table
+        // join makes sure cart item has valid product
+        // filter by given userId
+
         String sql = """
                 SELECT 
                     shopping_cart.quantity,
@@ -52,10 +56,15 @@ public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDa
         try (Connection connection = getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
+            // bind the userId value to ?
             preparedStatement.setInt(1, userId);
 
+            // execute and get result set
             try (ResultSet row = preparedStatement.executeQuery()) {
+
+                // loop through each row returned from the database
                 while (row.next()) {
+                    // build's a product obj from the current database row
                     Product product = new Product(
                             row.getInt("product_id"),
                             row.getString("name"),
@@ -68,19 +77,23 @@ public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDa
                             row.getString("image_url")
                     );
 
-                    // build shoppingcartitem
+                    // create a shopping cart for this product
                     ShoppingCartItem item = new ShoppingCartItem();
+                    // attach the product to the cart item
                     item.setProduct(product);
+                    // set the quanity from the shopping cart table
                     item.setQuantity(row.getInt("quantity"));
+                    // defaults to zero
                     item.setDiscountPercent(BigDecimal.ZERO);
 
-                    // add item to cart
+                    // add item to shopping cart
                     cart.add(item);
                 }
             }
         } catch (SQLException e) {
             throw new RuntimeException("Failed to load shoppin cart for the user" + userId + e);
         }
+        // retun the fully build shopping cart be it empty or populated
         return cart;
     }
 
@@ -102,13 +115,19 @@ public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDa
         try (Connection connection = getConnection()) {
 
             try (PreparedStatement updateStament = connection.prepareStatement(updateSql)) {
+                // bind values for the UPDATE statment
                 updateStament.setInt(1, userId);
                 updateStament.setInt(2, productId);
 
+                // execute the update and store how many rows got updated
                 int rowsUpdated = updateStament.executeUpdate();
 
+                // if no rows updated, the product was not in the cart
                 if (rowsUpdated == 0) {
+
+                    // insert a new cart record with quantity = 1
                     try (PreparedStatement insertStatement = connection.prepareStatement(insertSql)) {
+
                         insertStatement.setInt(1, userId);
                         insertStatement.setInt(2, productId);
                         insertStatement.executeUpdate();
@@ -117,7 +136,7 @@ public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDa
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to add product to cart" + e);
+            throw new RuntimeException("Failed to add product to cart" , e);
         }
     }
 
@@ -138,12 +157,14 @@ public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDa
 
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to update product quantity" + e);
+            throw new RuntimeException("Failed to update product quantity" , e);
         }
     }
 
     @Override
     public void clearCart(int userId) {
+
+        // delets all shopping cart items that belong to specific user
 
         String sql = """
                 DELETE FROM shopping_cart
@@ -151,10 +172,14 @@ public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDa
                 """;
         try (Connection connection = getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+
             preparedStatement.setInt(1, userId);
+            // execute delete and remove all cart items from user
+
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to clear shopping cart" + e);
+            throw new RuntimeException("Failed to clear shopping cart" , e);
         }
 
     }
