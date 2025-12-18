@@ -29,7 +29,7 @@ public class ProfileController {
         this.userDao = userDao;
     }
 
-    @PutMapping
+    @GetMapping
     public Profile getProfile(Principal principal) {
 
         // get the authenticated user
