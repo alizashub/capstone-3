@@ -61,7 +61,8 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
 
     @Override
     public Category getByCategoryID(int categoryId) {
-        // get category by id
+        // get category obj by cat id
+        //  ? is the placeholder for the cat id
         String sql = "SELECT * FROM categories WHERE category_id = ?";
 
         try (
@@ -70,19 +71,24 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
                 // preparing and executing the statment
                 PreparedStatement preparedStatement = connection.prepareStatement(sql))
         {
+            // replace the ? in the SQL with actual catId
             preparedStatement.setInt(1,categoryId);
+            // executes the query
+            // resultset may contain 0 or 1 row
             ResultSet resultSet = preparedStatement.executeQuery();
+            // checks if row exists, is resultSet.next is true, it is positioned on that row
             if(resultSet.next())
+            // converts currrent row into cat obj
+
             {
                 return mapRow(resultSet);
             }
         } catch (SQLException e) {
             System.err.println("Error while running getById(): " + e.getMessage());
         }
-        // if no category found return null
+        // if no row was found then it returns null -- "no cat with this id exists"
         return null;
     }
-
 
     @Override
     public Category create(Category category) {
