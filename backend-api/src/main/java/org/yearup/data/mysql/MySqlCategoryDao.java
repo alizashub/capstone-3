@@ -142,8 +142,8 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
 
     @Override
     public boolean update(int categoryId, Category category) {
-        // update category
 
+        // update row whos catId matches the value
         String sql = """
                 UPDATE categories 
                 SET name = ? , description = ?
@@ -154,15 +154,22 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
                 Connection connection = getConnection();
                 PreparedStatement preparedStatement = connection.prepareStatement(sql)
         ) {
+            // take updated values out of the cat obj
             preparedStatement.setString(1, category.getName());
             preparedStatement.setString(2, category.getDescription());
-
+            // this tells the database which row to update
             preparedStatement.setInt(3, categoryId);
 
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
+            // executes the update statement and returns how many rows were updated
+            int rowsUpdated = preparedStatement.executeUpdate();
+
+            // returns true only if exactly one row was updated and falase if catId did not exist
+            return  rowsUpdated == 1;
+        }
+        catch (SQLException e) {
             System.err.println("Error updating category: " + e.getMessage());
         }
+        return false;
     }
 
     @Override
