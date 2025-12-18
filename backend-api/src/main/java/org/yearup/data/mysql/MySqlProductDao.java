@@ -194,7 +194,7 @@ public class MySqlProductDao extends MySqlDaoBase implements ProductDao {
     }
 
     @Override
-    public void update(int productId, Product product) {
+    public boolean update(int productId, Product product) {
         String sql = "UPDATE products" +
                 " SET name = ? " +
                 "   , price = ? " +
@@ -225,7 +225,7 @@ public class MySqlProductDao extends MySqlDaoBase implements ProductDao {
     }
 
     @Override
-    public void delete(int productId) {
+    public boolean delete(int productId) {
 
         String sql = "DELETE FROM products " +
                 " WHERE product_id = ?;";
