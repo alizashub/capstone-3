@@ -92,34 +92,51 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
 
     @Override
     public Category create(Category category) {
-        // create a new category
+        // telling database to create a new row in the categories table
+        // the pk will be automatically generated
         String sql = """
                 INSERT INTO categories(name,description)
                 VALUES(?,?)
                 """;
         try (
                 Connection connection = getConnection();
+                // statment.returngenkeys does not automatically retun the id
                 PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
         ) {
+            // take the data out of the cat object
+            // bind it to sql as data
             preparedStatement.setString(1, category.getName());
             preparedStatement.setString(2, category.getDescription());
 
+            // execute the insert and returns how many rows were changed
+            // this is where database generates the cat id but java doesnt know the value yet
             int rowsInserted = preparedStatement.executeUpdate();
 
+            // saefty check to make sure only one row was inserted
             if (rowsInserted != 1) {
                 System.err.println("Something went wrong, expected 1 row");
             }
-            ResultSet resultSet = preparedStatement.getGeneratedKeys();
-            resultSet.next();
-            int category_id = resultSet.getInt(1);
 
+            // asking database what pk was generated
+            // resultSet doe not contain the cat data just the gen keys
+            ResultSet resultSet = preparedStatement.getGeneratedKeys();
+
+            // resultset starts before the first row so must move it before reading
+            // moves the cursor to the first generated key
+            resultSet.next();
+            // read the first column of the generated key results
+            // now java knows knows the cat id value
+            int category_id = resultSet.getInt(1);
+            // closes the resultset -- cant close after return as return will exit the method and the resutlset will remain open -- so must close before the retun + we alreadt got the resultset value
             resultSet.close();
 
+            // returns the populated cat obj
             return getByCategoryID(category_id);
 
         } catch (SQLException e) {
             System.err.println("Error creating a new category: " + e.getMessage());
         }
+        // if creation failed, return null
         return null;
     }
 
