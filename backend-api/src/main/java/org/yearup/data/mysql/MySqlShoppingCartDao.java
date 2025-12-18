@@ -1,9 +1,7 @@
 package org.yearup.data.mysql;
 
-import org.apache.ibatis.jdbc.SQL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.yearup.data.ProductDao;
 import org.yearup.data.ShoppingCartDao;
 import org.yearup.models.Product;
 import org.yearup.models.ShoppingCart;
@@ -22,7 +20,6 @@ public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDa
     public MySqlShoppingCartDao(DataSource dataSource) {
         super(dataSource);
     }
-
 
     @Override
     public ShoppingCart getByUserId(int userId) {
@@ -63,7 +60,9 @@ public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDa
             try (ResultSet row = preparedStatement.executeQuery()) {
 
                 // loop through each row returned from the database
+                // each loop turns 1 database row ( each product user added ) - into 1 shopping cart item and puts it in the shopping cart
                 while (row.next()) {
+
                     // build's a product obj from the current database row
                     Product product = new Product(
                             row.getInt("product_id"),
@@ -77,13 +76,14 @@ public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDa
                             row.getString("image_url")
                     );
 
+                    // create one line time for the shopping cart
                     // create a shopping cart for this product
                     ShoppingCartItem item = new ShoppingCartItem();
                     // attach the product to the cart item
                     item.setProduct(product);
                     // set the quanity from the shopping cart table
                     item.setQuantity(row.getInt("quantity"));
-                    // defaults to zero
+                    // defaults to zero - no discounts
                     item.setDiscountPercent(BigDecimal.ZERO);
 
                     // add item to shopping cart
@@ -125,14 +125,13 @@ public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDa
                 // if no rows updated, the product was not in the cart
                 if (rowsUpdated == 0) {
 
-                    // insert a new cart record with quantity = 1
+                    // insert a new cart record with quantity = 1 only if needed - meaning no product was in the cart
                     try (PreparedStatement insertStatement = connection.prepareStatement(insertSql)) {
 
                         insertStatement.setInt(1, userId);
                         insertStatement.setInt(2, productId);
                         insertStatement.executeUpdate();
                     }
-
                 }
             }
         } catch (SQLException e) {
@@ -143,6 +142,7 @@ public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDa
     @Override
     public void updateProductQuantity(int userId, int productId, int quantity) {
 
+        // replaces the old quantity with the new quantity
         String sql = """
                 UPDATE shopping_cart 
                 SET quantity = ?
@@ -155,6 +155,7 @@ public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDa
             preparedStatement.setInt(2, userId);
             preparedStatement.setInt(3, productId);
 
+            // find the row based on userid and product id and then replaces the quantity and saves it
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Failed to update product quantity" , e);
@@ -164,7 +165,7 @@ public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDa
     @Override
     public void clearCart(int userId) {
 
-        // delets all shopping cart items that belong to specific user
+        // delets all shopping cart items ( all the rows in the shopping cart table ) that belong to specific userid
 
         String sql = """
                 DELETE FROM shopping_cart
@@ -173,10 +174,10 @@ public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDa
         try (Connection connection = getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
-
+            // bind it to the userid
             preparedStatement.setInt(1, userId);
-            // execute delete and remove all cart items from user
 
+            // execute delete and remove all cart items for userid  -- when getByUserId is called next an empty shooping cart is returned
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Failed to clear shopping cart" , e);

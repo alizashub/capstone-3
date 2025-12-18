@@ -2,10 +2,8 @@ package org.yearup.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import org.yearup.data.ProductDao;
 import org.yearup.data.ShoppingCartDao;
 import org.yearup.data.UserDao;
 import org.yearup.models.ShoppingCart;
@@ -34,51 +32,59 @@ public class ShoppingCartController {
         this.userDao = userDao;
     }
 
-
     // each method in this controller requires a Principal object as a parameter
 
     @GetMapping
     public ShoppingCart getCart(Principal principal) {
-        // get the currently logged in username
-        String userName = principal.getName();
-        // find database user by userId
-        User user = userDao.getByUserName(userName);
-        // return's the user's shopping cart
+
+        User user = getAuthenticatedUser(principal);
+
+        // asks the shoppincartdao to build cart of user based on user id from the authenticated user
+        // create shopping cart item objects
+        // adds them to the shopping cart
+        // return a fully built cart - converts object to JSON
         return shoppingCartDao.getByUserId(user.getId());
     }
 
 
     @PostMapping("/products/{productId}")
     public ShoppingCart addProduct(@PathVariable int productId, Principal principal) {
-        try {
-            // get logged in username
-            String username = principal.getName();
-            // converts username to userid
-            User user = userDao.getByUserName(username);
-            // add the product to the cart
-            shoppingCartDao.addProduct(user.getId(), productId);
-            // returns the updated shopping cart
-            return shoppingCartDao.getByUserId(user.getId());
 
+        // get the database user with the userid
+        User user = getAuthenticatedUser(principal);
+
+        try {
+            // add the product to the users cart in the database ( update or insert based on if product exists )
+            // for this user add this product to the cart
+            shoppingCartDao.addProduct(user.getId(), productId);
+
+            // reload and return the updated shopping cart
+            return shoppingCartDao.getByUserId(user.getId());
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to add product");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to add product to cart", e);
         }
     }
+
 
     // add a PUT method to update an existing product in the cart - the url should be
     // https://localhost:8080/cart/products/15 (15 is the productId to be updated)
     // the BODY should be a ShoppingCartItem - quantity is the only value that will be updated
 
     @PutMapping("/products/{productId}")
-    public ShoppingCart updateProduct(@PathVariable int productId, @RequestBody ShoppingCartItem item, Principal principal) {
+    public ShoppingCart updateProduct(@PathVariable int productId, @RequestBody ShoppingCartItem item, Principal principal)  {
+
+        if (item.getQuantity() <= 0 )
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Quantity must be greater than zero");
+        }
+
+        // identify if user is authentic - ensure updating the correct users cart
+        User user = getAuthenticatedUser(principal);
+
         try {
-            // get logged in username
-            String username = principal.getName();
-            // converts username to userid
-            User user = userDao.getByUserName(username);
             // update the quanity for the specific product
             shoppingCartDao.updateProductQuantity(user.getId(), productId, item.getQuantity());
-            // return the updated shopping cart
+            // reload and return the updated shopping cart - shows new quantity and re-calcualted totals
             return shoppingCartDao.getByUserId(user.getId());
 
         } catch (Exception e) {
@@ -91,17 +97,40 @@ public class ShoppingCartController {
 
     @DeleteMapping
     public ShoppingCart clearCart(Principal principal) {
+
+        // ensure clearing cart for the correct user
+        User user = getAuthenticatedUser(principal);
+
+
         try {
-            // get logged-in username
-            String username = principal.getName();
-            // convert username to userid
-            User user = userDao.getByUserName(username);
-            // removes all cart items for the user
+            // clear all items for user in the database
             shoppingCartDao.clearCart(user.getId());
-            // return the now-empty shopping cart
+            // reload and return the now-empty shopping cart -- where total is 0
             return shoppingCartDao.getByUserId(user.getId());
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to clear shopping cart");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to clear shopping cart", e);
         }
     }
+
+    private User getAuthenticatedUser(Principal principal) {
+
+        // if principal is null spring did not attach a logged in user
+        if (principal == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not authenticated");
+        }
+
+        // get the currently logged in username - from the login token
+        String userName = principal.getName();
+
+        // find database user that matches username - to get userid
+        User user = userDao.getByUserName(userName);
+
+        // if no user record exists, return a 404
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+        // return the fully loaded user object - this is confirmation that the user is verified and in the database
+        return user;
+    }
+
 }

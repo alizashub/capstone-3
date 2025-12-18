@@ -3,7 +3,8 @@ package org.yearup.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.math.BigDecimal;
-
+// as a whole represents one product and its quantity and price
+// ShoppingCart is a container that manages ShoppingCartItems.
 public class ShoppingCartItem
 {
     // the full product obj
@@ -15,6 +16,7 @@ public class ShoppingCartItem
 
     public Product getProduct()
     {
+
         return product;
     }
 
@@ -57,7 +59,7 @@ public class ShoppingCartItem
                 this.product.getProductId();
     }
 
-    // calculates the total price for this cart item
+    // calculates the total price for this cart item -- the line only
     // ( price * quantity ) - discount
     public BigDecimal getLineTotal()
     {

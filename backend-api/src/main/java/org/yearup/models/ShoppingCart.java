@@ -9,14 +9,17 @@ public class ShoppingCart
 {
     // this map holds all the items in the cart
     // key - productid and value - shoppingcartitem ( product + quantity + pricing )
+    // for each productid there is ont shopping cart item -- no duplicate product in the cart -- quantity can change
     private Map<Integer, ShoppingCartItem> items = new HashMap<>();
 
 
     public Map<Integer, ShoppingCartItem> getItems() {
+
         return items;
     }
 
     public void setItems(Map<Integer, ShoppingCartItem> items) {
+
         this.items = items;
     }
 
@@ -31,6 +34,7 @@ public class ShoppingCart
     }
 
     public ShoppingCartItem get(int productId) {
+
         return items.get(productId);
     }
 
