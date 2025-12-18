@@ -2,25 +2,30 @@ package org.yearup.models;
 
 import java.math.BigDecimal;
 
+// represents one product
+
 public class Product {
+    // primary key
     private int productId;
     private String name;
+    // bigdecimal used instead of double to avoid rounding errors
     private BigDecimal price;
+    // foreign key linking product to category
     private int categoryId;
     private String description;
+    // optional grouping inside category
     private String subCategory;
     private int stock;
     private boolean isFeatured;
     private String imageUrl;
 
 
-
-    public Product()
-    {
+    // default constructor required by spring
+    public Product() {
     }
 
-    public Product(int productId, String name, BigDecimal price, int categoryId, String description, String subCategory, int stock, boolean isFeatured, String imageUrl)
-    {
+    // used when creating product object from database rows
+    public Product(int productId, String name, BigDecimal price, int categoryId, String description, String subCategory, int stock, boolean isFeatured, String imageUrl) {
         this.productId = productId;
         this.name = name;
         this.price = price;
@@ -32,93 +37,93 @@ public class Product {
         this.imageUrl = imageUrl;
     }
 
-    public int getProductId()
-    {
+    public int getProductId() {
+
         return productId;
     }
 
-    public void setProductId(int productId)
-    {
+    public void setProductId(int productId) {
+
         this.productId = productId;
     }
 
-    public String getName()
-    {
+    public String getName() {
+
         return name;
     }
 
-    public void setName(String name)
-    {
+    public void setName(String name) {
+
         this.name = name;
     }
 
-    public BigDecimal getPrice()
-    {
+    public BigDecimal getPrice() {
+
         return price;
     }
 
-    public void setPrice(BigDecimal price)
-    {
+    public void setPrice(BigDecimal price) {
+
         this.price = price;
     }
 
-    public int getCategoryId()
-    {
+    public int getCategoryId() {
+
         return categoryId;
     }
 
-    public void setCategoryId(int categoryId)
-    {
+    public void setCategoryId(int categoryId) {
+
         this.categoryId = categoryId;
     }
 
-    public String getDescription()
-    {
+    public String getDescription() {
+
         return description;
     }
 
-    public void setDescription(String description)
-    {
+    public void setDescription(String description) {
+
         this.description = description;
     }
 
-    public String getSubCategory()
-    {
+    public String getSubCategory() {
+
         return subCategory;
     }
 
-    public void setSubCategory(String subCategory)
-    {
+    public void setSubCategory(String subCategory) {
+
         this.subCategory = subCategory;
     }
 
-    public int getStock()
-    {
+    public int getStock() {
+
         return stock;
     }
 
-    public void setStock(int stock)
-    {
+    public void setStock(int stock) {
+
         this.stock = stock;
     }
 
-    public boolean isFeatured()
-    {
+    public boolean isFeatured() {
+
         return isFeatured;
     }
 
-    public void setFeatured(boolean featured)
-    {
+    public void setFeatured(boolean featured) {
+
         isFeatured = featured;
     }
 
-    public String getImageUrl()
-    {
+    public String getImageUrl() {
+
         return imageUrl;
     }
 
-    public void setImageUrl(String imageUrl)
-    {
+    public void setImageUrl(String imageUrl) {
+
         this.imageUrl = imageUrl;
     }
 }
