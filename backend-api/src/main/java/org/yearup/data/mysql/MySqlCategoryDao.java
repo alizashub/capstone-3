@@ -174,7 +174,8 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
 
     @Override
     public boolean delete(int categoryId) {
-        // delete category
+
+        // delete the row where catId matches the value
         String sql = """
                 DELETE FROM categories
                 WHERE category_id = ?
@@ -183,11 +184,21 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
                 Connection connection = getConnection();
                 PreparedStatement preparedStatement = connection.prepareStatement(sql)
         ) {
+            // bind the catid to the placeholder data -- tell the database which row to delete
             preparedStatement.setInt(1, categoryId);
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
+
+            // execute the delete and return how many rows were affected
+            int rowsDeleted = preparedStatement.executeUpdate();
+
+            // return true only if exactly one row was deleted and flase if catId did not exist
+            return rowsDeleted == 1;
+        }
+
+        catch (SQLException e) {
             System.err.println("Error deleting category: " + e.getMessage());
         }
+
+        return false;
     }
 
     private Category mapRow(ResultSet row) throws SQLException {
