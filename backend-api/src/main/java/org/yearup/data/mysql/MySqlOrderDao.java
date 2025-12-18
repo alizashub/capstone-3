@@ -32,7 +32,7 @@ public class MySqlOrderDao extends MySqlDaoBase implements OrderDao {
             // binding parameters
             preparedStatement.setInt(1, order.getUserId());
             // converts local date time obj into SQL timestamp and then stores it into the data column of the order row
-            preparedStatement.setTimestamp(2, Timestamp.valueOf(order.getOrderDate()));
+            preparedStatement.setTimestamp(2, Timestamp.valueOf(order.getDate()));
             preparedStatement.setString(3, order.getAddress());
             preparedStatement.setString(4, order.getCity());
             preparedStatement.setString(5, order.getState());

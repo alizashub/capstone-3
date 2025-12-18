@@ -3,10 +3,7 @@ package org.yearup.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.yearup.data.OrderDao;
 import org.yearup.data.OrderLineItemDao;
@@ -36,6 +33,7 @@ public class OrdersController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("isAuthenticated()")
     public void checkout(Principal principal) {
 
@@ -44,7 +42,11 @@ public class OrdersController {
         Order order = new Order();
 
         order.setUserId(user.getId());
-        order.setOrderDate(LocalDateTime.now());
+        order.setDate(LocalDateTime.now());
+        order.setAddress("");
+        order.setCity("");
+        order.setState("");
+        order.setZip("");
         order.setShippingAmount(cart.getTotal());
 
         int orderId = orderDao.create(order);
@@ -65,11 +67,7 @@ public class OrdersController {
     }
 
 
-
     private User getLoggedInUser(Principal principal) {
-        if (principal == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not authenticated");
-        }
 
         String username = principal.getName();
         User user = userDao.getByUserName(username);
