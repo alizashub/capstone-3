@@ -74,6 +74,8 @@ public class ProfileController {
         // get the currently logged in username - from the login token
         String userName = principal.getName();
 
+        System.out.println("JWT username = [" + userName + "]");
+
         // find database user that matches username - to get userid
         User user = userDao.getByUserName(userName);
 

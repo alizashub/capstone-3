@@ -32,6 +32,13 @@ public class UserModelDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(final String login) {
         log.debug("Authenticating user '{}'", login);
         String lowercaseLogin = login.toLowerCase();
+
+        User user = userDao.getByUserName(lowercaseLogin);
+
+        if ( user == null ) {
+            throw new UserNotActivatedException("User not found with username: " + lowercaseLogin); 
+        }
+
         return createSpringSecurityUser(lowercaseLogin, userDao.getByUserName(lowercaseLogin));
     }
 
