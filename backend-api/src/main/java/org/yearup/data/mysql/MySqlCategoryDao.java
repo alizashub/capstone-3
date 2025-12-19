@@ -28,7 +28,7 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
         ArrayList<Category> categories = new ArrayList<>();
         // getting all columns under categories
         // the database will return raw rows not category objects
-        String sql = "SELECT * FROM categories;";
+        String sql = "SELECT * FROM categories";
 
         try (
                 // using the getconnection() method from MySqlDaoBase - cant directly use datasource cause its private
@@ -58,7 +58,7 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
     }
 
     @Override
-    public Category getByCategoryID(int categoryId) {
+    public Category getByCategoryId(int categoryId) {
         // get category obj by cat id
         //  ? is the placeholder for the cat id
         String sql = "SELECT * FROM categories WHERE category_id = ?";
@@ -129,7 +129,7 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
             resultSet.close();
 
             // returns the populated cat obj
-            return getByCategoryID(category_id);
+            return getByCategoryId(category_id);
 
         } catch (SQLException e) {
             throw new RuntimeException("Error creating category: " + category.getName(),e);
@@ -198,21 +198,16 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
     }
 
     private Category mapRow(ResultSet row) throws SQLException {
-        // retuns a category obj for the current database row
-        // reads value from database and stores it inside the java variable
-        int categoryId = row.getInt("category_id");
-        String name = row.getString("name");
-        String description = row.getString("description");
 
-        // creates an empty category obj
-        // copies the data from the database into the java obj
-        Category category = new Category() {{
-            setCategoryId(categoryId);
-            setName(name);
-            setDescription(description);
-        }};
+        // creates an empty cat obj
+        Category category = new Category();
+        // read categoryid column from database row and store it insde the java obj
+        category.setCategoryId(row.getInt("category_id"));
+        category.setName(row.getString("name"));
+        category.setDescription(row.getString("description"));
 
-        // returns the populated cat obj, represents one row from the data
+        // returns the fully populated cat obj
+        // this represent one row from the database
         return category;
     }
 

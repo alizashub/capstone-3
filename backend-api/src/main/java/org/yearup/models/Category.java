@@ -22,42 +22,43 @@ public class Category
         this.description = description;
     }
 
+    // returns the category id
     public int getCategoryId()
-            // returns the category id
+
     {
         return categoryId;
     }
-
+    // sets category id
     public void setCategoryId(int categoryId)
-            // sets category id
+
     {
 
         this.categoryId = categoryId;
     }
-
+    // returns category name
     public String getName()
-            // returns category name
+
     {
 
         return name;
     }
-
+    // sets category name or updates it
     public void setName(String name)
-            // sets category name or updates it
+
     {
 
         this.name = name;
     }
-
+    // returns the category description
     public String getDescription()
-            // returns the category description
+
     {
 
         return description;
     }
-
+    // updates or sets the cat description
     public void setDescription(String description)
-            // updates or sets the cat description
+
     {
 
         this.description = description;

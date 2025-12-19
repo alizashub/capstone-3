@@ -48,7 +48,7 @@ public class CategoriesController {
     @GetMapping("/{id}")
     public Category getByCategoryId(@PathVariable int id) {
         // spring takes the id from the URL and converts it to data
-        Category category = categoryDao.getByCategoryID(id);
+        Category category = categoryDao.getByCategoryId(id);
 
         if (category == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Category " + id + " not found.");

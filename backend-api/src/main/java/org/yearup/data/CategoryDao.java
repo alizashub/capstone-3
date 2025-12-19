@@ -9,7 +9,7 @@ public interface CategoryDao
     // reteives all the cat from the database
     List<Category> getAllCategories();
     // retuns category by its cat id
-    Category getByCategoryID(int categoryId);
+    Category getByCategoryId(int categoryId);
     // creates a new category in the database
     Category create(Category category);
     // updates an existing category by cat id
