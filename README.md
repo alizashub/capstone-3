@@ -158,16 +158,6 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
 }
 ```
 
-### 🔐 Security Highlights
-Authentication required for carts, checkout, and profiles
-
-Admin role required for product and category management
-
-User identity is derived from the authentication context
-
-User IDs are never accepted directly from client requests
-
-
 
 ### 🛠 Tech Stack
 Java 17
