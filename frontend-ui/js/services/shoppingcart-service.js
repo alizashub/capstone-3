@@ -3,201 +3,183 @@ let cartService;
 class ShoppingCartService {
 
     cart = {
-        items:[],
-        total:0
+        items: [],
+        total: 0
     };
 
-    addToCart(productId)
-    {
+    // ---------------- ADD TO CART ----------------
+    addToCart(productId) {
         const url = `${config.baseUrl}/cart/products/${productId}`;
-        // const headers = userService.getHeaders();
 
-        axios.post(url, {})// ,{headers})
+        axios.post(url, {})
             .then(response => {
-                this.setCart(response.data)
-
-                this.updateCartDisplay()
-
+                this.setCart(response.data);
+                this.updateCartDisplay();
             })
             .catch(error => {
-
-                const data = {
-                    error: "Add to cart failed."
-                };
-
-                templateBuilder.append("error", data, "errors")
-            })
+                templateBuilder.append("error", { error: "Add to cart failed." }, "errors");
+            });
     }
 
-    setCart(data)
-    {
+    // ---------------- SET CART ----------------
+    setCart(data) {
         this.cart = {
             items: [],
-            total: 0
-        }
+            total: data.total
+        };
 
-        this.cart.total = data.total;
-
-        for (const [key, value] of Object.entries(data.items)) {
+        for (const value of Object.values(data.items)) {
             this.cart.items.push(value);
         }
     }
 
-    loadCart()
-    {
-
+    // ---------------- LOAD CART ----------------
+    loadCart() {
         const url = `${config.baseUrl}/cart`;
 
         axios.get(url)
             .then(response => {
-                this.setCart(response.data)
-
-                this.updateCartDisplay()
-
+                this.setCart(response.data);
+                this.updateCartDisplay();
             })
             .catch(error => {
-
-                const data = {
-                    error: "Load cart failed."
-                };
-
-                templateBuilder.append("error", data, "errors")
-            })
-
+                templateBuilder.append("error", { error: "Load cart failed." }, "errors");
+            });
     }
 
-    loadCartPage()
-    {
-        // templateBuilder.build("cart", this.cart, "main");
-
-        const main = document.getElementById("main")
+    // ---------------- LOAD CART PAGE ----------------
+    loadCartPage() {
+        const main = document.getElementById("main");
         main.innerHTML = "";
 
-        let div = document.createElement("div");
-        div.classList="filter-box";
-        main.appendChild(div);
-
-        const contentDiv = document.createElement("div")
+        const contentDiv = document.createElement("div");
         contentDiv.id = "content";
         contentDiv.classList.add("content-form");
 
-        const cartHeader = document.createElement("div")
-        cartHeader.classList.add("cart-header")
+        // ---------- HEADER ----------
+        const cartHeader = document.createElement("div");
+        cartHeader.classList.add("cart-header");
 
-        const h1 = document.createElement("h1")
+        const h1 = document.createElement("h1");
         h1.innerText = "Cart";
+
+        // ---------- BUTTON GROUP ----------
+        const buttonGroup = document.createElement("div");
+        buttonGroup.classList.add("cart-actions");
+
+        const clearBtn = document.createElement("button");
+        clearBtn.classList.add("btn", "btn-danger");
+        clearBtn.innerText = "Clear";
+        clearBtn.addEventListener("click", () => this.clearCart());
+
+        const checkoutBtn = document.createElement("button");
+        checkoutBtn.classList.add("btn", "btn-primary");
+        checkoutBtn.innerText = "Checkout";
+        checkoutBtn.addEventListener("click", () => this.checkout());
+
+        buttonGroup.appendChild(clearBtn);
+        buttonGroup.appendChild(checkoutBtn);
+
         cartHeader.appendChild(h1);
+        cartHeader.appendChild(buttonGroup);
 
-        const button = document.createElement("button");
-        button.classList.add("btn")
-        button.classList.add("btn-danger")
-        button.innerText = "Clear";
-        button.addEventListener("click", () => this.clearCart());
-        cartHeader.appendChild(button)
-
-        contentDiv.appendChild(cartHeader)
+        contentDiv.appendChild(cartHeader);
         main.appendChild(contentDiv);
 
-        // let parent = document.getElementById("cart-item-list");
+        // ---------- CART ITEMS ----------
         this.cart.items.forEach(item => {
-            this.buildItem(item, contentDiv)
+            this.buildItem(item, contentDiv);
         });
     }
 
-    buildItem(item, parent)
-    {
-        let outerDiv = document.createElement("div");
+    // ---------------- CHECKOUT (SHOW TOTAL) ----------------
+    checkout() {
+        const content = document.getElementById("content");
+
+        // Remove existing total if already shown
+        const existingTotal = document.getElementById("checkout-total");
+        if (existingTotal) existingTotal.remove();
+
+        const totalDiv = document.createElement("div");
+        totalDiv.id = "checkout-total";
+        totalDiv.classList.add("cart-total");
+
+        const totalH3 = document.createElement("h3");
+        totalH3.innerText = `TOTAL: $${this.cart.total.toFixed(2)}`;
+
+        totalDiv.appendChild(totalH3);
+        content.appendChild(totalDiv);
+    }
+
+    // ---------------- BUILD CART ITEM ----------------
+    buildItem(item, parent) {
+        const outerDiv = document.createElement("div");
         outerDiv.classList.add("cart-item");
 
-        let div = document.createElement("div");
-        outerDiv.appendChild(div);
-        let h4 = document.createElement("h4")
+        const nameDiv = document.createElement("div");
+        const h4 = document.createElement("h4");
         h4.innerText = item.product.name;
-        div.appendChild(h4);
+        nameDiv.appendChild(h4);
 
-        let photoDiv = document.createElement("div");
-        photoDiv.classList.add("photo")
-        let img = document.createElement("img");
-        img.src = `/images/products/${item.product.imageUrl}`
+        const photoDiv = document.createElement("div");
+        photoDiv.classList.add("photo");
+
+        const img = document.createElement("img");
+        img.src = `/images/products/${item.product.imageUrl}`;
         img.addEventListener("click", () => {
-            showImageDetailForm(item.product.name, img.src)
-        })
-        photoDiv.appendChild(img)
-        let priceH4 = document.createElement("h4");
+            showImageDetailForm(item.product.name, img.src);
+        });
+
+        const priceH4 = document.createElement("h4");
         priceH4.classList.add("price");
-//        const lineTotal = item.product.price * item.quantity;
-        priceH4.innerText = `$${item.product.price}`;
+        priceH4.innerText = `$${item.lineTotal.toFixed(2)}`;
+
+        photoDiv.appendChild(img);
         photoDiv.appendChild(priceH4);
-        outerDiv.appendChild(photoDiv);
 
-        let descriptionDiv = document.createElement("div");
+        const descriptionDiv = document.createElement("div");
         descriptionDiv.innerText = item.product.description;
-        outerDiv.appendChild(descriptionDiv);
 
-        let quantityDiv = document.createElement("div")
+        const quantityDiv = document.createElement("div");
         quantityDiv.innerText = `Quantity: ${item.quantity}`;
-        outerDiv.appendChild(quantityDiv)
 
+        outerDiv.appendChild(nameDiv);
+        outerDiv.appendChild(photoDiv);
+        outerDiv.appendChild(descriptionDiv);
+        outerDiv.appendChild(quantityDiv);
 
         parent.appendChild(outerDiv);
     }
 
-    clearCart()
-    {
-
+    // ---------------- CLEAR CART ----------------
+    clearCart() {
         const url = `${config.baseUrl}/cart`;
 
         axios.delete(url)
-             .then(response => {
-                 this.cart = {
-                     items: [],
-                     total: 0
-                 }
-
-                 this.cart.total = response.data.total;
-
-                 for (const [key, value] of Object.entries(response.data.items)) {
-                     this.cart.items.push(value);
-                 }
-
-                 this.updateCartDisplay()
-                 this.loadCartPage()
-
-             })
-             .catch(error => {
-
-                 const data = {
-                     error: "Empty cart failed."
-                 };
-
-                 templateBuilder.append("error", data, "errors")
-             })
+            .then(response => {
+                this.setCart(response.data);
+                this.updateCartDisplay();
+                this.loadCartPage();
+            })
+            .catch(error => {
+                templateBuilder.append("error", { error: "Empty cart failed." }, "errors");
+            });
     }
 
-    updateCartDisplay()
-    {
+    // ---------------- UPDATE CART COUNT ----------------
+    updateCartDisplay() {
         try {
-            const itemCount = this.cart.items.length;
-            const cartControl = document.getElementById("cart-items")
-
-            cartControl.innerText = itemCount;
-        }
-        catch (e) {
-
-        }
+            const cartControl = document.getElementById("cart-items");
+            cartControl.innerText = this.cart.items.length;
+        } catch (e) {}
     }
 }
 
-
-
-
-
+// ---------------- INIT ----------------
 document.addEventListener('DOMContentLoaded', () => {
     cartService = new ShoppingCartService();
 
-    if(userService.isLoggedIn())
-    {
+    if (userService.isLoggedIn()) {
         cartService.loadCart();
     }
-
 });
