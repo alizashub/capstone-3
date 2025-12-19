@@ -125,6 +125,7 @@ class ShoppingCartService {
         photoDiv.appendChild(img)
         let priceH4 = document.createElement("h4");
         priceH4.classList.add("price");
+//        const lineTotal = item.product.price * item.quantity;
         priceH4.innerText = `$${item.product.price}`;
         photoDiv.appendChild(priceH4);
         outerDiv.appendChild(photoDiv);
