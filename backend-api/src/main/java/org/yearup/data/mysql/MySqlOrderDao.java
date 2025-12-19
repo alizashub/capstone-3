@@ -26,7 +26,6 @@ public class MySqlOrderDao extends MySqlDaoBase implements OrderDao {
                 """;
 
         try (Connection connection = getConnection();
-
              PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
         ) {
             // binding parameters
@@ -43,17 +42,15 @@ public class MySqlOrderDao extends MySqlDaoBase implements OrderDao {
             preparedStatement.executeUpdate();
 
             // gets the generated order id key
-            ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
+            try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
 
-            if (generatedKeys.next()) {
-                return generatedKeys.getInt(1);
-            } else {
-                throw new RuntimeException("Failed to get generated orderId");
-
+                if (generatedKeys.next()) {
+                    return generatedKeys.getInt(1);
+                }
             }
+            throw new RuntimeException("Failed to get generated orderId");
         } catch (SQLException e) {
             throw new RuntimeException("Error creating order", e);
         }
-
     }
 }
