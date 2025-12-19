@@ -48,6 +48,36 @@ The backend follows a layered architecture:
 
 Controller → DAO Interface → MySQL DAO → Database
 
+
+## Website Screenshots
+![img.png](img.png)
+
+# Cart Before Checkout
+![img_1.png](img_1.png)
+
+# Cart After Checkout
+![img_2.png](img_2.png)
+
+# Profile Before Update
+![img_3.png](img_3.png)
+
+# Profile After Update
+
+![img_4.png](img_4.png)
+
+# Logout After Profile Update
+
+![img_5.png](img_5.png)
+
+# Login Page
+
+![img_6.png](img_6.png)
+
+# Login Back In - Profile Updates 
+![img_7.png](img_7.png)
+
+--
+
 ```java
 
 - **Controllers** handle HTTP requests and security
