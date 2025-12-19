@@ -135,7 +135,7 @@ public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDa
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to add product to cart" , e);
+            throw new RuntimeException("Failed to add product to cart", e);
         }
     }
 
@@ -158,7 +158,7 @@ public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDa
             // find the row based on userid and product id and then replaces the quantity and saves it
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to update product quantity" , e);
+            throw new RuntimeException("Failed to update product quantity", e);
         }
     }
 
@@ -180,7 +180,7 @@ public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDa
             // execute delete and remove all cart items for userid  -- when getByUserId is called next an empty shooping cart is returned
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to clear shopping cart" , e);
+            throw new RuntimeException("Failed to clear shopping cart", e);
         }
 
     }

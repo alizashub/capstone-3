@@ -35,7 +35,7 @@ public class ProductsController {
         return productDao.search(categoryId, minPrice, maxPrice, subCategory);
     }
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     public Product getById(@PathVariable int id) {
         // this will return a product if it exists and be null if no product with id exists
         Product product = productDao.getById(id);

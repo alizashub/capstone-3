@@ -62,35 +62,32 @@ public class MySqlProfileDao extends MySqlDaoBase implements ProfileDao {
                 WHERE user_id = ?
                 """;
 
-        try (Connection connection = getConnection()) {
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-
+        try (Connection connection = getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, userId);
 
-            ResultSet resultSet = preparedStatement.executeQuery();
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    // create a new profile object
+                    Profile profile = new Profile();
+                    // map each column from the result set to the profile obj
+                    profile.setUserId(resultSet.getInt("user_id"));
+                    profile.setFirstName(resultSet.getString("first_name"));
+                    profile.setLastName(resultSet.getString("last_name"));
+                    profile.setPhone(resultSet.getString("phone"));
+                    profile.setEmail(resultSet.getString("email"));
+                    profile.setAddress(resultSet.getString("address"));
+                    profile.setCity(resultSet.getString("city"));
+                    profile.setState(resultSet.getString("state"));
+                    profile.setZip(resultSet.getString("zip"));
 
-            if (resultSet.next()) {
-                // create a new profile object
-                Profile profile = new Profile();
-                // map each column from the result set to the profile obj
-                profile.setUserId(resultSet.getInt("user_id"));
-                profile.setFirstName(resultSet.getString("first_name"));
-                profile.setLastName(resultSet.getString("last_name"));
-                profile.setPhone(resultSet.getString("phone"));
-                profile.setEmail(resultSet.getString("email"));
-                profile.setAddress(resultSet.getString("address"));
-                profile.setCity(resultSet.getString("city"));
-                profile.setState(resultSet.getString("state"));
-                profile.setZip(resultSet.getString("zip"));
-
-                // return the populated profile object
-                return profile;
-            }
-            // if no row was found returns null
-            return null;
+                    // return the populated profile object
+                    return profile;
+                }
+            }           // if no row was found returns null
         } catch (SQLException e) {
             throw new RuntimeException("Failed to retrieve profile for userId: " + userId + e);
         }
+        return null;
     }
 
     @Override

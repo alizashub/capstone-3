@@ -2,8 +2,7 @@ package org.yearup.data;
 
 import org.yearup.models.ShoppingCart;
 
-public interface ShoppingCartDao
-{
+public interface ShoppingCartDao {
     // get the full shopping cart for a user
     // uses userid to find user
     // returns a fully populated shopping cart object including items and product details
@@ -20,9 +19,6 @@ public interface ShoppingCartDao
 
     // removes all items from the user's shopping cart
     void clearCart(int userId);
-
-
-
 
 
 }

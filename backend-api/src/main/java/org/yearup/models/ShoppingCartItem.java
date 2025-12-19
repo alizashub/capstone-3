@@ -3,10 +3,10 @@ package org.yearup.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.math.BigDecimal;
+
 // as a whole represents one product and its quantity and price
 // ShoppingCart is a container that manages ShoppingCartItems.
-public class ShoppingCartItem
-{
+public class ShoppingCartItem {
     // the full product obj
     private Product product = null;
     // defaults to 1 because adding a product adds one unit
@@ -14,38 +14,32 @@ public class ShoppingCartItem
     private BigDecimal discountPercent = BigDecimal.ZERO;
 
 
-    public Product getProduct()
-    {
+    public Product getProduct() {
 
         return product;
     }
 
-    public void setProduct(Product product)
-    {
+    public void setProduct(Product product) {
 
         this.product = product;
     }
 
-    public int getQuantity()
-    {
+    public int getQuantity() {
 
         return quantity;
     }
 
-    public void setQuantity(int quantity)
-    {
+    public void setQuantity(int quantity) {
 
         this.quantity = quantity;
     }
 
-    public BigDecimal getDiscountPercent()
-    {
+    public BigDecimal getDiscountPercent() {
 
         return discountPercent;
     }
 
-    public void setDiscountPercent(BigDecimal discountPercent)
-    {
+    public void setDiscountPercent(BigDecimal discountPercent) {
 
         this.discountPercent = discountPercent;
     }
@@ -53,16 +47,13 @@ public class ShoppingCartItem
     // returns the productId of the product in this cart
     // used by shopping cart as the map key
     @JsonIgnore
-    public int getProductId()
-    {
-        return
-                this.product.getProductId();
+    public int getProductId() {
+        return this.product.getProductId();
     }
 
     // calculates the total price for this cart item -- the line only
     // ( price * quantity ) - discount
-    public BigDecimal getLineTotal()
-    {
+    public BigDecimal getLineTotal() {
         BigDecimal basePrice = product.getPrice();
         BigDecimal quantity = new BigDecimal(this.quantity);
 
