@@ -97,6 +97,8 @@ PUT /profile
 ---
 
 # 🧩 Aliza's Interesting Code Example
+
+### Get All Categories Method
 ```java
 // this tells spring the class should be created and managed by spring
 @Component
@@ -146,6 +148,24 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
         return categories;
     }
 }
+
+```
+### MapRow Helper Method
+```java
+private Category mapRow(ResultSet row) throws SQLException {
+
+    // creates an empty cat obj
+    Category category = new Category();
+    // read categoryid column from database row and store it insde the java obj
+    category.setCategoryId(row.getInt("category_id"));
+    category.setName(row.getString("name"));
+    category.setDescription(row.getString("description"));
+
+    // returns the fully populated cat obj
+    // this represent one row from the database
+    return category;
+  }
+  
 ```
 
 # 🛠 Tech Stack
