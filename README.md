@@ -73,39 +73,39 @@ GET /profile
 PUT /profile
 
 ```
-## Website Screenshots
+# Website Screenshots
 ![img.png](img.png)
 
-# Cart Before Checkout
+## Cart Before Checkout
 ![img_1.png](img_1.png)
 
-# Cart After Checkout
+## Cart After Checkout
 ![img_2.png](img_2.png)
 
-# Profile Before Update
+## Profile Before Update
 ![img_3.png](img_3.png)
 
-# Profile After Update
+## Profile After Update
 
 ![img_4.png](img_4.png)
 
-# Logout After Profile Update
+## Logout After Profile Update
 
 ![img_5.png](img_5.png)
 
-# Login Page
+## Login Page
 
 ![img_6.png](img_6.png)
 
-# Login Back In - Profile Updates
+## Login Back In - Profile Updates
 ![img_7.png](img_7.png)
 
-## Insomnia Tests Results
+# Insomnia Tests Results
 ![img_8.png](img_8.png)
 ![img_9.png](img_9.png)
 
 
-## 🧩 Interesting Code Example
+# 🧩 Aliza's Interesting Code Example
 
 ```java
 // this tells spring the class should be created and managed by spring
@@ -157,7 +157,6 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
     }
 }
 ```
-
 
 ### 🛠 Tech Stack
 Java 17
