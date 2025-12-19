@@ -59,7 +59,8 @@ public class CategoriesController {
 
     // the url to return all products in category 1 would look like this
     // https://localhost:8080/categories/1/products
-    @GetMapping("{categoryId}/products")
+    // rest end point
+    @GetMapping("/{categoryId}/products")
     public List<Product> getProductsById(@PathVariable int categoryId) {
         // Sspring takes the id from URL
         // looks for products for catId
@@ -69,8 +70,10 @@ public class CategoriesController {
 
 
     @PostMapping
+    // http status handling
     @ResponseStatus(HttpStatus.CREATED)
     // add annotation to ensure that only an ADMIN can call this function
+    //spring security
     @PreAuthorize("hasRole('ADMIN')")
     // HTTP request contains body ( includes name and description )
     // spring reads the JSON body and creates a java obj

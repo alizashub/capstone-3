@@ -61,15 +61,17 @@ public class MySqlProductDao extends MySqlDaoBase implements ProductDao {
             //execute query
             // database runs and returns matching rows
 
-            ResultSet row = statement.executeQuery();
+            // nested try-with-resources to close result set
+            try (ResultSet row = statement.executeQuery()) {
 
-            // loops through each retured row
-            while (row.next()) {
-                // converts one database row into one product object
-                Product product = mapRow(row);
+                // loops through each retured row
+                while (row.next()) {
+                    // converts one database row into one product object
+                    Product product = mapRow(row);
 
-                // add product to the list
-                products.add(product);
+                    // add product to the list
+                    products.add(product);
+                }
             }
         } catch (SQLException e) {
             throw new RuntimeException("Error searching products", e);
@@ -86,19 +88,19 @@ public class MySqlProductDao extends MySqlDaoBase implements ProductDao {
 
         String sql = "SELECT * FROM products " + " WHERE category_id = ? ";
 
-        try (Connection connection = getConnection()) {
-            PreparedStatement statement = connection.prepareStatement(sql);
+        try (Connection connection = getConnection();
+            PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, categoryId);
 
             // loop through each row returned by the database
-            ResultSet row = statement.executeQuery();
+            try (ResultSet row = statement.executeQuery()) {
 
-
-            while (row.next()) {
-                // convert database row into product object
-                Product product = mapRow(row);
-                // add product obj to the result list
-                products.add(product);
+                while (row.next()) {
+                    // convert database row into product object
+                    Product product = mapRow(row);
+                    // add product obj to the result list
+                    products.add(product);
+                }
             }
         } catch (SQLException e) {
             throw new RuntimeException("Error retrieving products for category " + categoryId, e);
@@ -112,17 +114,20 @@ public class MySqlProductDao extends MySqlDaoBase implements ProductDao {
         // get one product by pk
         String sql = "SELECT * FROM products WHERE product_id = ?";
 
-        try (Connection connection = getConnection()) {
-            PreparedStatement statement = connection.prepareStatement(sql);
+        try (Connection connection = getConnection();
+            PreparedStatement statement = connection.prepareStatement(sql))
+        {
             statement.setInt(1, productId);
 
             // database returns 0 or 1 row
-            ResultSet row = statement.executeQuery();
+            // with .executeQuery make sure to use try with resources to close resultset explicity
+            try(ResultSet row = statement.executeQuery()) {
 
-            // checks if row exits, if true the cursor moves to that row
-            if (row.next()) {
-                // converts database row into product obj
-                return mapRow(row);
+                // checks if row exits, if true the cursor moves to that row
+                if (row.next()) {
+                    // converts database row into product obj
+                    return mapRow(row);
+                }
             }
         } catch (SQLException e) {
             throw new RuntimeException("Error retrieving product with id " + productId, e);

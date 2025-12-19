@@ -38,7 +38,7 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
                 // esecuteQuery runs the SELECT
                 // resultset now holds all the returned database rows
                 ResultSet resultSet = preparedStatement.executeQuery())
-                // try with reousrces automatially closes eveything
+        // try with reousrces automatially closes eveything
         {
             // loop through each returned row by the database
             while (resultSet.next()) {
@@ -50,7 +50,7 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
                 categories.add(category);
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Error retrieving all categories",e);
+            throw new RuntimeException("Error retrieving all categories", e);
         }
         // retuns the list of cat objs
         // if no rows existed, the list will be empty not NULL
@@ -67,22 +67,21 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
                 // using the getconnection() method from MySqlDaoBase - cant directly use datasource cause its private
                 Connection connection = getConnection();
                 // preparing and executing the statment
-                PreparedStatement preparedStatement = connection.prepareStatement(sql))
-        {
+                PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             // replace the ? in the SQL with actual catId
-            preparedStatement.setInt(1,categoryId);
+            preparedStatement.setInt(1, categoryId);
             // executes the query
             // resultset may contain 0 or 1 row
-            ResultSet resultSet = preparedStatement.executeQuery();
-            // checks if row exists, is resultSet.next is true, it is positioned on that row
-            if(resultSet.next())
-            // converts currrent row into cat obj
 
-            {
-                return mapRow(resultSet);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                // checks if row exists, is resultSet.next is true, it is positioned on that row
+                if (resultSet.next()) {
+                    // converts currrent row into cat obj
+                    return mapRow(resultSet);
+                }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Error retrieving category with id " + categoryId,e);
+            throw new RuntimeException("Error retrieving category with id " + categoryId, e);
         }
         // if no row was found then it returns null -- "no cat with this id exists"
         return null;
@@ -132,7 +131,7 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
             return getByCategoryId(category_id);
 
         } catch (SQLException e) {
-            throw new RuntimeException("Error creating category: " + category.getName(),e);
+            throw new RuntimeException("Error creating category: " + category.getName(), e);
         }
     }
 
@@ -160,9 +159,8 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
             int rowsUpdated = preparedStatement.executeUpdate();
 
             // returns true only if exactly one row was updated and falase if catId did not exist
-            return  rowsUpdated == 1;
-        }
-        catch (SQLException e) {
+            return rowsUpdated == 1;
+        } catch (SQLException e) {
 
             // Database failure → unrecoverable here
             throw new RuntimeException("Error updating category " + categoryId, e);
@@ -189,9 +187,7 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
 
             // return true only if exactly one row was deleted and flase if catId did not exist
             return rowsDeleted == 1;
-        }
-
-        catch (SQLException e) {
+        } catch (SQLException e) {
 
             throw new RuntimeException("Error deleting category " + categoryId, e);
         }
